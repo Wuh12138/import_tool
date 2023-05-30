@@ -19,11 +19,11 @@ def parse_table_sheet(db_table):
         field_list=list()
         for field in field_iter:
             field_list.append(field["title"])
-        table_lis.append({"table_title":table["title"],"fileds":field_list})
+        table_lis.append({"table_title":table["title"],"fields":field_list})
     return table_lis
 
 
 
-title,dic=parse_table_sheet(db_table[0])
+title,dic=parse_table_sheet(db_table)
 
 pass
