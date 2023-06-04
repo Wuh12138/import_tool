@@ -10,22 +10,24 @@ db_name: str = xmind_content["title"]
 db_table: list = xmind_content["topics"]
 
 
-
-
 def parse_table_sheet(db_table):
-    table_lis = list()
+    """
+
+    :param db_table:
+    :return: {table_name:field_lis,table_name2:field_lis2} field_lis:[{title:name,tp:type}]
+    """
+    table_dic=dict()
     for table in db_table:
-        field_iter=table["topics"]
-        field_list=list()
+        tb_name = table["title"]
+        field_iter = table["topics"]
+        field_lis = list()
         for field in field_iter:
-            field_list.append(field["title"])
-        table_lis.append({"table_title":table["title"],"fields":field_list})
-    return table_lis
+            title = field["title"]
+            tp = field["topics"][0]["title"]
+            field_lis.append({"title": title, "tp": tp})
+        table_dic[tb_name]=field_lis
+    return table_dic
 
 
-
-title,dic=parse_table_sheet(db_table)
-
-
-
+parse_table_sheet(db_table)
 pass
