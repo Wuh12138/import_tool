@@ -1,4 +1,4 @@
-test = "f.field_1+s.field_1=10"
+test = "(f.field_1+s.field_1)*3+55*32=100"
 
 
 def is_sym(char: str):
@@ -26,7 +26,7 @@ def add_va(va: str, docker: list):
             raise ValueError(f"error: the variable '{va}' is invalid")
     elif '.' in va:
         docker.append({"type": 1, "value": va})
-    elif va.isalnum():
+    elif va[0] == '\"':
         docker.append({"type": 3, "value": va})
     else:
         raise TypeError(f"error:invalid identify : '{va}' ")
@@ -35,28 +35,71 @@ def add_va(va: str, docker: list):
 def parse_expression(exp: str):
     ele_lis = list()
     ele_variable = str()
-    for i in range(len(test)):
+    for i in range(len(exp)):
 
-        if is_sym(test[i]):
+        if is_sym(exp[i]):
             # append back variable if it not ''
             add_va(ele_variable, ele_lis)
-            ele_lis.append({"type": 0, "value": test[i]})
-            i += 1
+            ele_lis.append({"type": 0, "value": exp[i]})
             ele_variable = ''
 
-        elif test[i] == ' ':
+        elif exp[i] == ' ':
             # append back variable if it not ''
             add_va(ele_variable, ele_lis)
-            i += 1
             ele_variable = ''
 
-        elif test[i].isdigit() or test.isalpha():
-            ele_variable += test[i]
-            i += 1
+        elif exp[i].isdigit() or exp[i].isalpha() or exp[i] == '.' or exp[i] == '_' or exp[i] == '\"':
+            ele_variable += exp[i]
         else:
-            raise AssertionError(f"error: invalid character : '{test[i]}' ")
+            raise AssertionError(f"error: invalid character : '{exp[i]}' ")
+    add_va(ele_variable, ele_lis)
     return ele_lis
 
 
+def sym_rank(sym: str):
+    if sym in ['+', '-']:
+        return 1
+    elif sym in ['*', '/']:
+        return 2
+    elif sym == '(':
+        return 4
+    elif sym in ['<', '>', '{', '}', '=']:
+        return 0
+    elif sym == '#':
+        return -1
+
+
 def convert_exp(exp: list):
-    pass
+    evaluate_stk: list = list()
+    sy_stk: list = list()
+    sy_stk.append('#')  # avoid the empty stack
+    evaluate_stk: list = list()
+    for s in exp:
+
+        if s["type"] == 0:
+            if s["value"] == ')':  # solve the (,  )
+                while sy_stk[-1] != '(':
+                    evaluate_stk.append(sy_stk.pop())
+                sy_stk.pop()
+
+            elif sym_rank(s["value"]) < sym_rank(sy_stk[-1]) and sy_stk[-1] != '(':  # solve * / + -
+                while sym_rank(sy_stk[-1]) >= sym_rank(s["value"]) and sy_stk[-1] != '(':
+                    evaluate_stk.append(sy_stk.pop())
+                sy_stk.append(s["value"])
+
+            else:  # directly add symbol
+                sy_stk.append(s["value"])
+
+        else:  # add variable
+            evaluate_stk.append(s)
+
+    while sy_stk[-1] != '#':  # proceed the remain thing
+        evaluate_stk.append(sy_stk.pop())
+    return evaluate_stk
+
+
+t1 = parse_expression(test)
+
+back_exp = convert_exp(t1)
+
+pass

@@ -3,8 +3,6 @@ from zipfile import ZipFile
 
 from . import config, cache
 
-
-
 content_json = "content.json"
 
 
@@ -27,7 +25,8 @@ def get_sheets():
 def sheet_to_dict(sheet):
     """convert a sheet to dict type."""
     topic = sheet['rootTopic']
-    result = {'title': sheet['title'], 'topic': node_to_dict(topic), 'structure': get_sheet_structure(sheet),"detached":get_sheet_detached(topic)}
+    result = {'title': sheet['title'], 'topic': node_to_dict(topic), 'structure': get_sheet_structure(sheet),
+              "detached": get_sheet_detached(topic)}
 
     if config['showTopicId']:
         result['id'] = sheet['id']
@@ -37,41 +36,45 @@ def sheet_to_dict(sheet):
 
     return result
 
+
 """modify--------------------------------------"""
-def parse_table_name(s:str):
+
+
+def parse_table_name(s: str):
     """
     parse <table1,table2> str to list[table1,table2]
     :param s: <table1,table2>
     :return:[table1,table2]
     """
-    s1=s.strip("<").strip(">").split(" ")
+    s1 = s.strip("<").strip(">").split(" ")
     return s1
-
 
 
 def get_sheet_detached(topic):
     # all
-    relation_list:list=topic["children"]["detached"]
+    relation_list: list = topic["children"]["detached"]
 
-    single_relaion_list=list()
+    single_relation_list = list()
     for single_relation in relation_list:
-        table_pair=parse_table_name(single_relation["title"]) # the pair of two table name
-        condition_list=single_relation["children"]["attached"]
+        table_pair = parse_table_name(single_relation["title"])  # the pair of two table name
+        condition_list = single_relation["children"]["attached"]
 
-        single_condition_list=list()
+        single_condition_list = list()
         for single_condition in condition_list:
-            if single_condition["title"]!=":":
+            if single_condition["title"] != ":":
                 raise Exception("the symbol : expected or a error format of xmind!")
-            expression_list:list=single_condition["children"]["attached"]
+            expression_list: list = single_condition["children"]["attached"]
 
-            single_expression_list=list()
+            single_expression_list = list()
             for single_expression in expression_list:
-                expression_str=single_expression["title"] # the content of expression by str
+                expression_str = single_expression["title"]  # the content of expression by str
                 single_expression_list.append(expression_str)
         single_condition_list.append(single_expression_list)
-    single_relaion_list.append({"title_pair":table_pair,"condition":single_condition_list})
+    single_relation_list.append({"title_pair": table_pair, "condition": single_condition_list})
 
     return single_expression_list
+
+
 """modify--------------------------------------"""
 
 
