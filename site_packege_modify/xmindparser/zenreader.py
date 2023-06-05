@@ -2,62 +2,8 @@ import json
 from zipfile import ZipFile
 
 from . import config, cache
-"""----------------------------------------"""
-class Matcher:
-    def __init__(self):
-        self.matcher_list = list()
 
-    @staticmethod
-    def is_greater(a, b):
-        if a > b:
-            return True
-        else:
-            return False
 
-    @staticmethod
-    def is_greater_equal(a, b):
-        if a >= b:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def is_smaller(a, b):
-        if a < b:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def is_smaller_equal(a, b):
-        if a <= b:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def is_content(a: str, b: str):
-        if b in a:
-            return True
-        else:
-            return False
-
-    def generate_match_list(self, requirements: str):
-        pass
-
-    def add_to_list(self, symbol:str):
-        match symbol:
-            case ">":
-                self.matcher_list.append(self.is_greater)
-            case ">=":
-                self.matcher_list.append(self.is_greater_equal)
-            case "<":
-                self.matcher_list.append(self.is_smaller)
-            case "<=":
-                self.matcher_list.append(self.is_smaller_equal)
-            case "(":
-                self.matcher_list.append(self.is_content)
-"""---------------------------------------------"""
 
 content_json = "content.json"
 
@@ -101,55 +47,31 @@ def parse_table_name(s:str):
     s1=s.strip("<").strip(">").split(" ")
     return s1
 
-def parse_s(s:str):
-    res=list()
-    s=s.split(" ")
-    for i in s:
-        if i[0]=='"':
-            res.append(2)
-            t=i.strip('"')
-            res.append(t)
-        elif i[0]=='[':
-            res.append(0)
-            res.append(i.strip("[").strip("]"))
-        elif i[0].isdigit():
-            res.append(1)
-            res.append(float(i))
-        else:
-            res.append(i)
-    return res
+
 
 def get_sheet_detached(topic):
-    rt:list=topic["children"]["detached"]
-    rt_lis=list()
+    # all
+    relation_list:list=topic["children"]["detached"]
 
-    for r in rt:
-        rt_dic = dict()
-        table_str=r["title"]
-        table_pair=parse_table_name(table_str)
-        rt_dic["table1"]=table_pair[0]
-        rt_dic["table2"]=table_pair[1]
-        rqs=r["children"]["attached"]
+    single_relaion_list=list()
+    for single_relation in relation_list:
+        table_pair=parse_table_name(single_relation["title"]) # the pair of two table name
+        condition_list=single_relation["children"]["attached"]
 
-        # finish one relationship matcher
-        rqs_list = list()  # storage the section reqirements which can create relateion if satisfied
-        for rq in rqs:
-            if rq["title"]!=":":
+        single_condition_list=list()
+        for single_condition in condition_list:
+            if single_condition["title"]!=":":
                 raise Exception("the symbol : expected or a error format of xmind!")
-            sg_rs:list=rq["children"]["attached"]
-            sec_dic=dict()
-            sec_match=Matcher()
-            sec_para_lis=list()
-            for sq_r in sg_rs:
-                t=parse_s(sq_r["title"])
-                sec_para_lis.append(t)
-                sec_match.add_to_list(t[2])
-            sec_dic["arguments"]=sec_para_lis
-            sec_dic["matcher"]=sec_match
-            rqs_list.append(sec_dic)
-        rt_dic["matchers"]=rqs_list
-        rt_lis.append(rt_dic)
-    return rt_lis
+            expression_list:list=single_condition["children"]["attached"]
+
+            single_expression_list=list()
+            for single_expression in expression_list:
+                expression_str=single_expression["title"] # the content of expression by str
+                single_expression_list.append(expression_str)
+        single_condition_list.append(single_expression_list)
+    single_relaion_list.append({"title_pair":table_pair,"condition":single_condition_list})
+
+    return single_expression_list
 """modify--------------------------------------"""
 
 
