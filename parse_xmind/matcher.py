@@ -37,6 +37,21 @@ class Matcher:
         else:
             return False
 
+    @staticmethod
+    def add(a:float,b:float):
+        return a+b
+    @staticmethod
+    def sub(a:float,b:float):
+        return a-b
+    @staticmethod
+    def div(a:float,b:float):
+        return a/b
+
+    @staticmethod
+    def muti(a:float,b:float):
+        return a*b
+
+
     def generate_match_list(self, requirements: str):
         pass
 
@@ -50,8 +65,8 @@ class Matcher:
                 self.matcher_list.append(self.is_smaller)
             case "<=":
                 self.matcher_list.append(self.is_smaller_equal)
-            case "(":
-                self.matcher_list.append(self.is_content)
+            case "+":
+                self.matcher_list.append()
 
 if __name__ == "__main__":
 
