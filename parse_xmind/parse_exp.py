@@ -199,8 +199,13 @@ def compute_exp(f: dict, s: dict, fun_list: list):
     return tp_value.pop()
 
 
-if __name__ == "__main__":
+def parse_exp(exp: str):
+    back_exp = parse_expression(exp)
+    fun_lis = exp_to_fun(back_exp)
+    return fun_lis
 
+
+if __name__ == "__main__":
     test = "(f.field_1+s.field_1)*10/3-1>=100"
 
     test_data_1 = {
