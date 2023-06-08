@@ -41,6 +41,11 @@ def add_va(va: str, docker: list):
 
 
 def parse_expression(exp: str):
+    """
+    parse expression to list
+    :param exp:
+    :return: expression list
+    """
     ele_lis = list()
     ele_variable = str()
 
@@ -86,6 +91,11 @@ def sym_rank(sym: str):
 
 
 def convert_exp_to_back(exp: list):
+    """
+    convert expression to back expression
+    :param exp:
+    :return:
+    """
     sy_stk: list = list()
     sy_stk.append({"type": 0, "value": '#'})  # avoid the empty stack
     evaluate_stk: list = list()
@@ -128,6 +138,10 @@ def sym_to_fun(sym: str):
         return operator.ge
     elif sym == "<=":
         return operator.le
+    elif sym == '>':
+        return operator.gt
+    elif sym == '<':
+        return operator.lt
 
 
 def exp_to_fun(back_exp: list):
@@ -200,7 +214,7 @@ def compute_exp(f: dict, s: dict, fun_list: list):
 
 
 def parse_exp(exp: str):
-    back_exp = parse_expression(exp)
+    back_exp = convert_exp_to_back(parse_expression(exp))
     fun_lis = exp_to_fun(back_exp)
     return fun_lis
 
