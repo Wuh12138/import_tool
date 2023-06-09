@@ -83,4 +83,5 @@ if __name__ == '__main__':
 
     detached_list = xmind_dict[0]["detached"]  # get detached_list : the list of relation between tables
 
-    matcher = generate_mathcher(detached_list)
+    relation_list = generate_mathcher(detached_list)
+    generate_relation_instance(Neo4jOperation(), relation_list)  # just for illustration
