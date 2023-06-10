@@ -13,9 +13,11 @@ class Execute:
         self.source = None
 
     def set_xmind_path(self, xmind_path: str):
-        xmind = xmindparser.xmind_to_dict(xmind_path)
-        self.content = xmind[0]["topic"]
-        self.detached = xmind[0]["detached"]
+        pass  # TODO:
+
+        # xmind = xmindparser.xmind_to_dict(xmind_path)
+        # self.content = xmind[0]["topic"]
+        # self.detached = xmind[0]["detached"]
 
     def execute(self):
         pass
