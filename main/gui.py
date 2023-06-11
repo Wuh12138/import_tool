@@ -32,9 +32,9 @@ line_edit3 = QLineEdit(window)
 line_edit3.resize(200, 30)
 line_edit3.move(10, 120)
 line_edit3.setText("http://localhost:7474")
-#Create a line_edit to select xmind file
 
 
+# Create a line_edit to select xmind file
 
 
 # Create window2
@@ -162,23 +162,20 @@ class Ui2(QMainWindow):
         for log in mysql
         :return:
         """
-
-        # TODO:
-        self.import_show()
-
-        # try:
-        #     execute.set_source("mysql", host=self.line_edit4.text(), user=self.line_edit5.text(),
-        #                     password=self.line_edit6.text(), database=self.line_edit7.text())
-        #     QMessageBox.information(self, "success", "log in mysql successfully")
-        #     self.select_xmind()
-        # except Exception as e:
-        #     QMessageBox.critical(self, "error", str(e))
+        try:
+            execute.set_source("mysql", host=self.line_edit4.text(), user=self.line_edit5.text(),
+                               password=self.line_edit6.text(), database=self.line_edit7.text())
+            QMessageBox.information(self, "success", "log in mysql successfully")
+            self.import_show()
+        except Exception as e:
+            QMessageBox.critical(self, "error", str(e))
 
     def on_button_clicked_confirm_xlsx(self):
         """
         to confirm xlsx file path
         :return:
         """
+        execute.set_source("xlsx", xlsx_path = self.line_edit8.text())
         self.import_show()
 
     def on_button_clicked_select_xlsx_file(self):
@@ -199,6 +196,7 @@ class Ui2(QMainWindow):
         file_dialog.show()
 
     def on_button_clicked_start_import(self):
+        execute.execute()
         QMessageBox.information(self, "success", "import successfully")
 
 
@@ -215,18 +213,18 @@ def on_button_clicked():
     password = line_edit2.text()
     url = line_edit3.text()
 
-    # TODO:
-    bl = [True]
+    bl = execute.set_neo4j(key=password, name=neo4j, url=url)
     if bl[0]:
         QMessageBox.information(window, "success", "log in neo4j successfully")
         window.close()
         Ui2.furnish()
-        execute.set_xmind_path(line_edit5.text())
+        execute.parse_xmind(line_edit5.text())
         Ui2.show()
     else:
         QMessageBox.information(window, "fail", "log in neo4j failed")
         #  show b[1] by MessageBox
         QMessageBox.information(window, "fail", str(bl[1]))
+
 
 def on_button_clicked_select_xmind():
     """
@@ -245,25 +243,23 @@ def on_button_clicked_select_xmind():
     file_dialog.fileSelected.connect(line_edit5.setText)
     file_dialog.show()
 
-#Create a line_edit to input the path of xmind
-line_edit5=QLineEdit(window)
-line_edit5.resize(200,30)
-line_edit5.move(10,160)
+
+# Create a line_edit to input the path of xmind
+line_edit5 = QLineEdit(window)
+line_edit5.resize(200, 30)
+line_edit5.move(10, 160)
 line_edit5.setText("xmind path")
-button_to_select_xmind=QPushButton(window)
+button_to_select_xmind = QPushButton(window)
 button_to_select_xmind.setText("...")
-button_to_select_xmind.resize(30,30)
-button_to_select_xmind.move(220,160)
+button_to_select_xmind.resize(30, 30)
+button_to_select_xmind.move(220, 160)
 button_to_select_xmind.clicked.connect(on_button_clicked_select_xmind)
-
-
 
 # Create a button and set its text
 button = QPushButton(window)
 button.setText("log in")
 button.move(10, 200)
 button.clicked.connect(on_button_clicked)
-
 
 # storage all line_edit text when click button
 

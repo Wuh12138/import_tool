@@ -44,7 +44,7 @@ def parse_table_name(s:str):
     :param s: <table1,table2>
     :return:[table1,table2]
     """
-    s1=s.strip("<").strip(">").split(" ")
+    s1=s.strip("<").strip(">").split("  ")
     return s1
 
 def parse_s(s:str):
@@ -83,7 +83,7 @@ def get_sheet_detached(topic):
             for single_expression in expression_list:
                 expression_str=single_expression["title"] # the content of expression by str
                 single_expression_list.append(expression_str)
-            single_condition_list.append({"reltion_title":relation_name,"expression_list":single_expression_list})
+            single_condition_list.append({"relation_title":relation_name,"expression_list":single_expression_list})
         single_relation_list.append({"title_pair":table_pair,"condition_list":single_condition_list})
 
     return single_relation_list

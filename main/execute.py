@@ -9,18 +9,16 @@ class Execute:
     def __init__(self):
         self.content = None
         self.detached = None
-        self.neo4j: Neo4jOperation = None
+        self.neo4j:Neo4jOperation = None
         self.source = None
 
-    def set_xmind_path(self, xmind_path: str):
-        pass  # TODO:
+    def parse_xmind(self, xmind_path: str):
 
-        # xmind = xmindparser.xmind_to_dict(xmind_path)
-        # self.content = xmind[0]["topic"]
-        # self.detached = xmind[0]["detached"]
+        xmind = xmindparser.xmind_to_dict(xmind_path)
+        self.content = xmind[0]["topic"]
+        self.detached = xmind[0]["detached"]
 
     def execute(self):
-        pass
         self.source.map()
         print("node import finished")
         self.generate_relation()
@@ -32,7 +30,7 @@ class Execute:
 
     def set_neo4j(self, key, name="neo4j", url='http://localhost:7474'):
         try:
-            self.neo4j = Neo4jOperation(key, name, url)
+            self.neo4j=Neo4jOperation(key=key, name=name, url=url)
             return [True]
         except Exception as e:
             return [False, e]

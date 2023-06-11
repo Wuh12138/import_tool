@@ -138,3 +138,13 @@ class Neo4jOperation:
         """
         return list(self.__mgraph.nodes.match(label))
 
+
+if __name__=="__main__":
+
+    def test(n):
+        n1=n
+        return n1
+
+    n=Neo4jOperation(key="12345678", name='neo4j', url='http://localhost:7474')
+    n1=test(n)
+    n1.add_node("book", name="内经")

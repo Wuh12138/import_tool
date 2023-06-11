@@ -58,8 +58,8 @@ def generate_relation_instance(neo4j: Neo4jOperation, relation_list: list):
     :return:
     """
     for single_relation in relation_list:
-        node_label_f = single_relation["title"][0]
-        node_label_s = single_relation["title"][1]
+        node_label_f = single_relation["title_pair"][0]
+        node_label_s = single_relation["title_pair"][1]
 
         node_of_f = neo4j.find_node_by_label(node_label_f)
         node_of_s = neo4j.find_node_by_label(node_label_s)
