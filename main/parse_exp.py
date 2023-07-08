@@ -123,6 +123,12 @@ def convert_exp_to_back(exp: list):
     return evaluate_stk
 
 
+def left_contain(a,b):
+    if a in b:
+        return True
+    else:
+        return False
+
 def sym_to_fun(sym: str):
     if sym == '+':
         return operator.add
@@ -142,7 +148,10 @@ def sym_to_fun(sym: str):
         return operator.gt
     elif sym == '<':
         return operator.lt
-
+    elif sym == '{':
+        return operator.contains
+    elif sym == '}':
+        return left_contain
 
 def exp_to_fun(back_exp: list):
     """
