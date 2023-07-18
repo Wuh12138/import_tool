@@ -22,7 +22,8 @@ def is_number(string):
 
 def add_va(va: str, docker: list):
     """
-    0:symbol 1:field 2:number 3:str
+    将列表元素的类型用type标识
+    type:: 0:symbol 1:field 2:number 3:str
     :param va:
     :param docker:
     :return:
@@ -42,6 +43,7 @@ def add_va(va: str, docker: list):
 
 def parse_expression(exp: str):
     """
+    将表达式转换为列表，标识了元素的type
     parse expression to list
     :param exp:
     :return: expression list
@@ -92,6 +94,7 @@ def sym_rank(sym: str):
 
 def convert_exp_to_back(exp: list):
     """
+    将单条逻辑表达式转换为后缀表达式
     convert expression to back expression
     :param exp:
     :return:
@@ -124,12 +127,23 @@ def convert_exp_to_back(exp: list):
 
 
 def left_contain(a,b):
+    """
+    判断a是否在b中，将in函数化，替换后缀表达式中的{符号
+    :param a:
+    :param b:
+    :return:
+    """
     if a in b:
         return True
     else:
         return False
 
 def sym_to_fun(sym: str):
+    """
+    将后缀表达中的符号转化为相应的函数，以便直接计算
+    :param sym:
+    :return:
+    """
     if sym == '+':
         return operator.add
     elif sym == '-':
@@ -155,7 +169,8 @@ def sym_to_fun(sym: str):
 
 def exp_to_fun(back_exp: list):
     """
-    :type:4 infer the value is a function
+    将单条后缀表达式中的符号转换为与之等价的函数，以便直接计算,添加新的逻辑或算术运算符请在sym_to_fun中添加等价的函数
+    :type:4 infer the element is a sign 忘记什么意思了，不要乱改
     :type:10 infer the param need to compute and storage in another list which for save compute result,the value is indexing
     :param back_exp:
     :return:
@@ -180,6 +195,14 @@ def exp_to_fun(back_exp: list):
 
 
 def convert_arguments(f: dict, s: dict, va: dict, tp_value: list):
+    """
+    将表达式中的变量转换为相应的值
+    :param f:
+    :param s:
+    :param va:
+    :param tp_value:
+    :return:
+    """
     if va["type"] == 1:
         l = va["value"].split('.')
         source_indentify = l[0]
@@ -201,7 +224,7 @@ def convert_arguments(f: dict, s: dict, va: dict, tp_value: list):
 
 def compute_exp(f: dict, s: dict, fun_list: list):
     """
-
+    计算单条表达式的值
     :param f: the first table dict which is an instance
     :param s: the second table dict which is an instance
     :param fun_list:
@@ -223,6 +246,11 @@ def compute_exp(f: dict, s: dict, fun_list: list):
 
 
 def parse_exp(exp: str):
+    """
+    将原始表达式转化为计算之前的函数，变量表达式，将返回值做为参数调用compute_exp函数即可计算表达式的bool值
+    :param exp:
+    :return:
+    """
     back_exp = convert_exp_to_back(parse_expression(exp))
     fun_lis = exp_to_fun(back_exp)
     return fun_lis
