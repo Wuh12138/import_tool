@@ -121,8 +121,10 @@ Rectangle{
         title: "Select Xmind File"
 
         nameFilters: ["Xmind Files (*.xmind)"]
+        property string selectedFile_: ""
         onAccepted: {
-            xmindFileSelect.text = selectedFile
+            selectedFile_ = CIN.FormatFilePath(selectedFile)
+            xmindFileSelect.text = selectedFile_
         }
 
     }

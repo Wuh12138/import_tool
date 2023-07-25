@@ -1,8 +1,11 @@
+import time
+
 from neo4jClass import Neo4jOperation
 from sqlClass import SqlOperation
 import parse_xmind
 import xlrd
 import openpyxl
+import threading
 
 
 class MapFromSql:
@@ -67,7 +70,10 @@ class MapFromXlsx:
         self.db_name = xmind_content['title']
         self.relation_dic = parse_xmind.parse_table_sheet(xmind_content['topics'])
         self.xlsx_path = param['xlsx_path']
-
+        self.record_list = list()
+        self.t: threading.Thread = None
+        self.runFlag = 1  # 1: run 2: pause 3: exit
+        self.callBack =None
     @staticmethod
     def check_field(column_name: str, field_lis: list):
         for single_filed in field_lis:
@@ -104,7 +110,7 @@ class MapFromXlsx:
             r.append(c.value)
         return r
 
-    def map(self):
+    def __mapFun(self):
         work_book = openpyxl.load_workbook(self.xlsx_path)
         sheet_name_list = work_book.sheetnames
         for sheet_name in sheet_name_list:
@@ -114,7 +120,7 @@ class MapFromXlsx:
             sheet = work_book.get_sheet_by_name(sheet_name)
             # get all column name
             rows_list = list(sheet.rows)
-            column_name_list:list = MapFromXlsx.row_cell(rows_list[0])
+            column_name_list: list = MapFromXlsx.row_cell(rows_list[0])
             columns_type = self.column_type(column_name_list, self.relation_dic[sheet_name])
 
             label_cache: list = list()
@@ -128,7 +134,40 @@ class MapFromXlsx:
                 try:
                     no = self.neo4j.node(sheet_name, **label)
                     self.neo4j.cr_node(no)
+
+                    self.record_list.append(no)
+                    self.callBack(no)
+                    if self.runFlag == 1:
+                        pass
+                    elif self.runFlag == 2:
+                        while self.runFlag == 2:
+                            time.sleep(1)
+                    elif self.runFlag == 3:
+                        return
+
                 except Exception as e:
                     print(e)
                     print(label)
                     exit(1)
+
+    def map(self):
+        self.t = threading.Thread(target=self.__mapFun)
+        self.t.start()
+
+    def pause(self):
+        self.runFlag = 2
+
+    def resume(self):
+        self.runFlag = 1
+
+    def stop(self):
+        self.runFlag = 3
+        self.t.join()
+        self.t = None
+
+    def setCallBack(self,callBack):
+        self.callBack = callBack
+
+    def goBack(self):
+        for no in self.record_list:
+            self.neo4j.delete(no)
