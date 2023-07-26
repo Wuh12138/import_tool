@@ -73,7 +73,8 @@ class MapFromXlsx:
         self.record_list = list()
         self.t: threading.Thread = None
         self.runFlag = 1  # 1: run 2: pause 3: exit
-        self.callBack =None
+        self.callBack = None
+
     @staticmethod
     def check_field(column_name: str, field_lis: list):
         for single_filed in field_lis:
@@ -165,9 +166,17 @@ class MapFromXlsx:
         self.t.join()
         self.t = None
 
-    def setCallBack(self,callBack):
+    def setCallBack(self, callBack):
         self.callBack = callBack
 
+    def __go_back(self):
+        count = len(self.record_list) - 1
+        while count >= 0:
+            temp = self.record_list.pop()
+            self.neo4j.delete(temp)
+            self.callBack(temp)
+            count -= 1
+
     def goBack(self):
-        for no in self.record_list:
-            self.neo4j.delete(no)
+        self.t = threading.Thread(target=self.__go_back)
+        self.t.start()

@@ -39,7 +39,7 @@ Rectangle{
         TextField{
             id: neo4jUrl
             placeholderText: "Neo4j Url"
-            text: "bolt://localhost:7687"
+            text: "http://localhost:7474/"
 
             x: parent.x+horizontalSpacing
             y: parent.y+verticalSpacing
@@ -76,7 +76,7 @@ Rectangle{
         TextField{
             id: neo4jDatabase
             placeholderText: "Neo4j Database"
-
+            text: "neo4j"
             x: parent.x+horizontalSpacing
             y: neo4jPassword.y+inputBoxHeight+verticalSpacing
 

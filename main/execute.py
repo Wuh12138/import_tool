@@ -3,6 +3,7 @@ from generate_node import MapFromXlsx
 from neo4jClass import Neo4jOperation
 import parse_xmind
 import xmindparser
+import threading
 
 
 class Execute:
@@ -13,6 +14,8 @@ class Execute:
         self.source = None
         self.rn_generator: parse_xmind.RelationGenerate = None
 
+        self.stepFlag = 0
+
     def parse_xmind(self, xmind_path: str):
 
         xmind = xmindparser.xmind_to_dict(xmind_path)
@@ -21,12 +24,20 @@ class Execute:
 
         self.rn_generator = parse_xmind.RelationGenerate(self.neo4j, self.detached)
 
-    def execute(self):
+    def __execute(self):
+        self.stepFlag = 1
         self.source.map()
+        self.source.t.join()
         print("node import finished")
-
+        self.stepFlag = 2
         self.generate_relation()
+        self.rn_generator.t.join()
         print("relation import finished")
+        self.stepFlag = 3
+
+    def execute(self):
+        t = threading.Thread(target=self.__execute)
+        t.start()
 
     def generate_relation(self):
         self.rn_generator.run()
@@ -45,6 +56,48 @@ class Execute:
             self.source = MapFromXlsx(self.content, self.neo4j, **param)
         else:
             raise Exception("db_type must be sql or xlsx")
+
+    def pause(self):
+        if self.stepFlag == 0:
+            pass
+        elif self.stepFlag == 1:
+            self.source.pause()
+        elif self.stepFlag == 2:
+            self.rn_generator.pause()
+
+    def resume(self):
+        if self.stepFlag == 0:
+            pass
+        elif self.stepFlag == 1:
+            self.source.resume()
+        elif self.stepFlag == 2:
+            self.rn_generator.resume()
+
+    def stop(self):
+        if self.stepFlag == 0:
+            pass
+        elif self.stepFlag == 1:
+            self.source.stop()
+        elif self.stepFlag == 2:
+            self.rn_generator.stop()
+
+    def __goBack(self):
+        if self.stepFlag == 0:
+            pass
+        elif self.stepFlag == 1:
+            self.source.goBack()
+        elif self.stepFlag == 3:
+            self.stepFlag = 2
+            self.rn_generator.goBack()
+            self.rn_generator.t.join()
+            self.stepFlag = 1
+            self.source.goBack()
+
+        self.stepFlag = 0
+
+    def goBack(self):
+        t = threading.Thread(target=self.__goBack)
+        t.start()
 
     def s_pause(self):
         self.source.pause()
@@ -72,3 +125,6 @@ class Execute:
 
     def r_setCallBack(self, callBack):
         self.rn_generator.setCallBack(callBack)
+
+    def r_goBack(self):
+        self.rn_generator.goBack()

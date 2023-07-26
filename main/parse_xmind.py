@@ -116,9 +116,17 @@ class RelationGenerate:
     def setCallBack(self, callBack):
         self.callBack = callBack
 
+    def __go_back(self):
+        count = len(self.record_list) - 1
+        while count >= 0:
+            temp = self.record_list.pop()
+            self.neo4j.delete(temp)
+            self.callBack(temp)
+            count -= 1
+
     def goBack(self):
-        for r in self.record_list:
-            self.neo4j.delete(r)
+        self.t = threading.Thread(target=self.__go_back)
+        self.t.start()
 
 
 if __name__ == '__main__':

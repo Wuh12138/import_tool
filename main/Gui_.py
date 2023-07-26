@@ -1,3 +1,4 @@
+import queue
 import sys
 import time
 import urllib.request
@@ -6,7 +7,7 @@ from pathlib import Path
 
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuick import QQuickView
-from PySide6.QtCore import QStringListModel, QUrl, QObject, Slot, QEventLoop, QTimer
+from PySide6.QtCore import QStringListModel, QUrl, QObject, Slot, QEventLoop, QTimer, Qt
 from PySide6.QtGui import QGuiApplication
 
 from execute import Execute
@@ -95,12 +96,12 @@ class Page1(QObject):
     def submit(self, neo4j_url: str, neo4j_user: str, neo4j_password: str, neo4j_database: str, xmind_path: str):
         xmind_path = xmind_path.replace("file:///", "")
         print(neo4j_url, neo4j_user, neo4j_password, neo4j_database, xmind_path)
-        # try:
-        #     Instance.set_neo4j(neo4j_password, neo4j_user, neo4j_url)
-        #     Instance.parse_xmind(xmind_path)
-        # except Exception as e:
-        #     CommonInterface.errorLog(str(e))
-        #     return
+        try:
+            Instance.set_neo4j(neo4j_password, neo4j_user, neo4j_url)
+            Instance.parse_xmind(xmind_path)
+        except Exception as e:
+            CommonInterface.errorLog(str(e))
+            return
 
         pageManager.goNext(Page2())
 
@@ -149,7 +150,12 @@ class Page2(QObject):
         else:
             raise Exception("wait to be completed")
 
+        pageManager.goNext(Page3())
+
+
 class Page3(QObject):
+    __wait_queue = queue.Queue()
+
     def __init__(self, qmlPath: str = "qml/Page3.qml"):
         super().__init__()
         self.qml_path = Path(__file__).parent / f"{qmlPath}"
@@ -166,9 +172,61 @@ class Page3(QObject):
             print(self.view.errors())
             sys.exit(-1)
 
+        self.timer = QTimer()
+        self.timer.setInterval(10)
+        self.timer.timeout.connect(self.timerProcess)
+        self.timer.start()
 
+        self.timer2 = QTimer()
+        self.timer2.setInterval(100)
+        self.timer2.timeout.connect(self.timerProcess2)
+        self.timer2.start()
 
+    def show(self):
+        self.view.show()
 
+    @staticmethod
+    def callBackFun(s):
+        Page3.__wait_queue.put(s)
+
+    @Slot()
+    def timerProcess(self):
+        if not Page3.__wait_queue.empty():
+            temp = str(Page3.__wait_queue.get(block=True, timeout=None))
+            root = self.view.rootObject()
+            element = root.findChild(QObject, "scheduleModel", Qt.FindChildrenRecursively)
+            element.addSchedule(temp)
+
+    def timerProcess2(self):
+        self.view.rootContext().setContextProperty("startButtonEnable", Instance.stepFlag == 0)
+        self.view.rootContext().setContextProperty("goBackButtonEnable", Instance.stepFlag == 3)
+
+    @Slot()
+    def start(self):
+        Instance.s_setCallBack(Page3.callBackFun)
+        Instance.r_setCallBack(Page3.callBackFun)
+        try:
+            Instance.execute()
+        except Exception as e:
+            CommonInterface.errorLog(str(e))
+            return
+
+    @Slot()
+    def pause(self):
+        Instance.pause()
+
+    @Slot()
+    def resume(self):
+        Instance.resume()
+
+    @Slot()
+    def stop(self):
+        Instance.stop()
+
+    @Slot()
+    def goBack(self):
+        Instance.goBack()
+        # pageManager.goBack()
 
 
 if __name__ == '__main__':
